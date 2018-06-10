@@ -22,8 +22,42 @@
          "width":100,
          "x":0,
          "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "name":"objectsLayer",
+         "objects":[
+                {
+                 "gid":372,
+                 "height":64,
+                 "id":10,
+                 "name":"",
+                 "properties":
+                    {
+                     "asset":"shield",
+                     "defense":2,
+                     "type":"item"
+                    },
+                 "propertytypes":
+                    {
+                     "asset":"string",
+                     "defense":"int",
+                     "type":"string"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":64,
+                 "x":263,
+                 "y":119
+                }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
         }],
- "nextobjectid":1,
+ "nextobjectid":13,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.1.5",

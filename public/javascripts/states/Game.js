@@ -26,6 +26,9 @@ RPG.GameState = {
     //player can't walk through walls
     this.game.physics.arcade.collide(this.player, this.collisionLayer);
 
+    //items collection
+    this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);  
+
     //stop each time
     this.player.body.velocity.x = 0;
     this.player.body.velocity.y = 0;
@@ -100,6 +103,25 @@ RPG.GameState = {
     //add player to the world
     this.add.existing(this.player);
 
+    //group of items
+    this.items = this.add.group();
+    this.loadItems();
+
+    //follow player with the camera
+    this.game.camera.follow(this.player);
+    
+    // var potion = new RPG.Item(this, 100, 150, 'potion', {health: 10});
+    // this.items.add(potion);
+
+    // var sword = new RPG.Item(this, 100, 180, 'sword', {attack: 2});
+    // this.items.add(sword);
+
+    // var shield = new RPG.Item(this, 100, 210, 'shield', {defense: 2});
+    // this.items.add(shield);
+
+    // var chest = new RPG.Item(this, 100, 240, 'chest', {gold: 100});
+    // this.items.add(chest);
+
     this.initGUI();
   },
   gameOver: function() {
@@ -118,5 +140,65 @@ RPG.GameState = {
       downright: true,
       action: false
     })
+
+    this.showPlayerIcons();
+  },
+  collect: function(player, item) {
+    this.player.collectItem(item);
+  },
+  showPlayerIcons: function() {
+    //gold icon
+    this.goldIcon = this.add.sprite(10, 10, 'coin');
+    this.goldIcon.fixedToCamera = true;
+
+    var style = {font: '14px Arial', fill: '#fff'};
+    this.goldLabel = this.add.text(30, 10, '0', style);
+    this.goldLabel.fixedToCamera = true;
+
+    //attack icon
+    this.attackIcon = this.add.sprite(70, 10, 'sword');
+    this.attackIcon.fixedToCamera = true;
+
+    var style = {font: '14px Arial', fill: '#fff'};
+    this.attackLabel = this.add.text(90, 10, '0', style);
+    this.attackLabel.fixedToCamera = true;
+
+    //defense icon
+    this.defenseIcon = this.add.sprite(130, 10, 'shield');
+    this.defenseIcon.fixedToCamera = true;
+
+    var style = {font: '14px Arial', fill: '#fff'};
+    this.defenseLabel = this.add.text(150, 10, '0', style);
+    this.defenseLabel.fixedToCamera = true;
+
+    this.refreshStats();
+  },
+  refreshStats: function(){
+    this.goldLabel.text = this.player.data.gold;
+    this.attackLabel.text = this.player.data.attack;
+    this.defenseLabel.text = this.player.data.defense;
+  },
+  findObjectsByType: function(targetType, tilemap, layer){
+    var result = [];
+    
+    tilemap.objects[layer].forEach(function(element){
+      if(element.properties.type == targetType) {
+        element.y -= tilemap.tileHeight/2;        
+        element.x += tilemap.tileHeight/2;        
+        result.push(element);
+      }
+    }, this);
+    
+    return result;
+  },
+  loadItems: function(){
+    var elementsArr = this.findObjectsByType('item', this.map, 'objectsLayer');
+    var elementObj;
+
+    elementsArr.forEach(function(element){
+      elementObj = new RPG.Item(this, element.x, element.y, element.properties.asset, element.properties);
+      this.items.add(elementObj);
+    }, this);
   }
+
 };

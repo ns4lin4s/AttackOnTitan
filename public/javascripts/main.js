@@ -1,6 +1,6 @@
 var RPG = RPG || {};
 
-RPG.dim = RPG.getGameLandscapeDimensions(3200, 3200);
+RPG.dim = RPG.getGameLandscapeDimensions(640, 640);
 
 RPG.game = new Phaser.Game(RPG.dim.w, RPG.dim.h, Phaser.AUTO);
 
