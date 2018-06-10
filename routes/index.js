@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Learn Game Development at ZENVA.com' });
+  res.render('index', { title: 'Attack on Titan' });
 });
 
 module.exports = router;
