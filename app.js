@@ -1,41 +1,88 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+var express = require('express'),
+    session = require('express-session'),
+    path = require('path'),
+    favicon = require('serve-favicon'),
+    logger = require('morgan'),
+    cookieParser = require('cookie-parser'),
+    bodyParser = require('body-parser'),
+    helmet = require('helmet'),
+    request = require('request'),
+    wait = require('wait.for'),
+    http = require('http'),
+    passport = require('./config/passport'),
+    mongoose = require('mongoose')
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var port = process.env.APP_PORT
 
-var app = express();
+var app = express()
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+//Routes
+var index = require('./routes/index')
+var users = require('./routes/users')
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+//http://expressjs.com/es/advanced/best-practice-security.html
+app.use(helmet())
+app.disable('x-powered-by')
+app.use(session({
+  secret: 'ccc-7a6n42c*i5?0_api',
+  resave: true,
+  saveUninitialized: true
+}))
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.set('views', __dirname + '/views')
+app.set('view engine', 'pug')
+
+// uncomment after placing your favicon in /public
+//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(logger('dev'))
+app.use(bodyParser.urlencoded({ extended: false,limit: '1GB' }))
+app.use(bodyParser.json())
+app.use(cookieParser())
+app.use(express.static(path.join(__dirname, 'public')))
+
+// connect to mongodb database
+mongoose.Promise = global.Promise;
+mongoose.connect('mongodb://localhost:27017/todoDemo');
+passport(app);
+
+passport(app);
+
+//Routes
+app.use('/', index);
+app.use('/users', users);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
+app.use((req, res, next) => {
+  var err = new Error('Not Found')
+  err.status = 404
+  next(err)
+})
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+  res.locals.message = err.message
+  res.locals.error = process.env.START_TYPE === 'development' ? err : {}
 
   // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+  res.status(err.status || 500)
+  res.render('error')
+})
 
-module.exports = app;
+process.env.UV_THREADPOOL_SIZE = 128
+
+app.listen(port, () => {
+
+  console.log(`${new Date().toLocaleString()} | AttackOnTitan | EXPRESS (${process.env.START_TYPE}) PORT: ${port}`);
+
+  if (process.env.START_TYPE == "development") {
+    //Setear valores si es dev
+  }
+  app.set('config',{
+    nombre: "AttackOnTitanApp"
+    //Si falta algo, se agrega aca, es como un loader para variables que se necesiten desde el controller
+  })
+
+})
+
+module.exports = app

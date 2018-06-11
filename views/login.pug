@@ -1,0 +1,11 @@
+extends layout2
+
+block content
+  .row
+    if message
+      .alert.alert-danger.alert-error
+        h1 #{message}
+
+    .col-lg-12
+      a(href="/auth/facebook")
+        img(src="/images/facebookBtn.png", alt="")

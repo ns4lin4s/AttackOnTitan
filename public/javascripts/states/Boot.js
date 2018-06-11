@@ -18,7 +18,7 @@ RPG.BootState = {
   },
   preload: function() {
     //assets we'll use in the loading screen
-    this.load.image('bar', 'assets/images/preloader-bar.png');
+    this.load.image('bar', '../assets/images/preloader-bar.png');
   },
   create: function() {
     this.state.start('Preload');

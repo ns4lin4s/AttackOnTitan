@@ -1,0 +1,57 @@
+extends layout2
+
+block content
+    .row
+        .col-lg-12
+            h1.page-header Add User
+
+
+div(class="row",style="width:50%")
+    if message
+        .alert.alert-danger-alert-error
+            message
+
+    .col-lg-12
+        form(action="/user/addUser", id="addUser", method="post")
+            h4(class="form-group-lg",style="text-align: center") Add User
+            .form-group
+                label.form-label Name
+                input(type="text", class="form-control", id="name", name="name")
+            .form-group
+                label.form-label Username
+                input(type="text", class="form-control", id="username", name="username")
+            .form-group
+                label.form-label Password
+                input(type="password", class="form-control", id="password", name="password")
+            .form-group
+                input(type="submit", class="btn btn-submit", value="Sign In")
+
+script(src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js")
+
+script
+    $(function(){
+        $('#name').focus();
+        var validator = $('#addUser').validate({
+            onclick: false,
+            errorElement: "span",
+            rules: {
+                name : {
+                    required: true,
+                },
+                username : {
+                    required: true,
+                },
+                password : {
+                    required : true,
+                }
+            },
+            messages: {
+            },
+            highlight: function(element, errorClass, validClass) {
+                $(element).addClass(errorClass).removeClass(validClass);
+            },
+            unhighlight: function(element, errorClass, validClass) {
+                $(element).removeClass(errorClass);
+            },
+        });
+    });
