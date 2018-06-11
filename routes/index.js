@@ -51,6 +51,11 @@ router.get('/auth/facebook/callback', function(request, response, next) {
             response.redirect('/users/rpg')
         });
     })(request, response, next)
-});
+})
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+  res.render('index', { title: 'Attack on Titan' })
+})
 
 module.exports = router
