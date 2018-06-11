@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "CLIENT_ID=197321351087575 CLIENT_SECRET=01e8eecb6d8556798821e9933a182d3f APP_PORT=9999 START_TYPE=DEVELOPMENT nodemon app"
+    "dev": "APP_PORT=9999 START_TYPE=DEVELOPMENT nodemon app"
   },
   "dependencies": {
     "bcrypt": "^2.0.1",
