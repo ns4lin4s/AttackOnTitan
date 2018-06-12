@@ -10,6 +10,7 @@ RPG.Battle.prototype.attack = function(attacker, attacked) {
   console.log(damage);
 
   attacked.data.health -= damage;
+  attacked.refreshHealthbar();
 
   //make attacked character red
   var attackedTween = this.game.add.tween(attacked);

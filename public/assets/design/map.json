@@ -285,7 +285,7 @@
                      "asset":"monster",
                      "attack":"10",
                      "defense":"10",
-                     "health":"10",
+                     "health":"25",
                      "type":"enemy"
                     },
                  "propertytypes":
