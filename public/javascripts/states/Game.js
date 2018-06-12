@@ -26,6 +26,9 @@ RPG.GameState = {
     //player can't walk through walls
     this.game.physics.arcade.collide(this.player, this.collisionLayer);
 
+    //attacking enemies
+    this.game.physics.arcade.collide(this.player, this.enemies, this.attack, null, this);
+
     //items collection
     this.game.physics.arcade.overlap(this.player, this.items, this.collect, null, this);  
 
@@ -106,6 +109,17 @@ RPG.GameState = {
     //group of items
     this.items = this.add.group();
     this.loadItems();
+
+    //enemies
+    this.enemies = this.add.group();
+    //this.loadEnemies();
+
+    //battle object
+    this.battle = new RPG.Battle(this.game);
+
+    //enemies
+    this.enemies = this.add.group();
+    this.loadEnemies();
 
     //follow player with the camera
     this.game.camera.follow(this.player);
@@ -199,6 +213,32 @@ RPG.GameState = {
       elementObj = new RPG.Item(this, element.x, element.y, element.properties.asset, element.properties);
       this.items.add(elementObj);
     }, this);
-  }
+  },
+  attack: function(player, enemy) {
+    this.battle.attack(player, enemy);
+    this.battle.attack(enemy, player);
 
+    //bounce back a bit
+    if(player.body.touching.up) {
+      player.y += 20;
+    }
+    if(player.body.touching.down) {
+      player.y -= 20;
+    }
+    if(player.body.touching.left) {
+      player.x += 20;
+    }
+    if(player.body.touching.right) {
+      player.x -= 20;
+    }
+  },
+  loadEnemies: function(){
+    var elementsArr = this.findObjectsByType('enemy', this.map, 'objectsLayer');
+    var elementObj;
+
+    elementsArr.forEach(function(element){
+      elementObj = new RPG.Enemy(this, element.x, element.y, element.properties.asset, element.properties);
+      this.enemies.add(elementObj);
+    }, this);
+  }
 };
