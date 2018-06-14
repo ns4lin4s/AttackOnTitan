@@ -105,9 +105,9 @@ io.on('connection', function (socket) {
   // // send the current scores
   // socket.emit('scoreUpdate', scores);
   // update all other players of the new player
-  //socket.broadcast.emit('newPlayer', players[socket.id]);
+  socket.broadcast.emit('newPlayer', players[socket.id]);
   socket.on('disconnect', function () {
-      console.log('user disconnected');
+      console.log('user disconnected:' + socket.id);
       // remove this player from our players object
       delete players[socket.id];
       // emit a message to all players to remove this player

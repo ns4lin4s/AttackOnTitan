@@ -73,6 +73,8 @@ RPG.GameState = {
     //init socketio
     this.socket = new RPG.SocketClient();
 
+    this.otherPlayers = this.add.group();
+
     //create a tilemap object
     this.map = this.add.tilemap('map_3200x3200')//(this.currentLevel);
     
@@ -98,6 +100,11 @@ RPG.GameState = {
 
     //load current players
     this.socket.currentPlayer()
+
+    //listen event disconnect players
+    this.socket.disconnect()
+
+    this.socket.newPlayer()
 
     //enemies
     this.enemies = this.add.group();
@@ -227,7 +234,7 @@ RPG.GameState = {
       this.enemies.add(elementObj);
     }, this);
   },
-  currentPlayer: function(players){
+  currentPlayers: function(players){
     var self = this;
 
     Object.keys(players).forEach(function (id) {
@@ -247,7 +254,7 @@ RPG.GameState = {
           quests: []
         };
 
-        self.player = new RPG.Player(self, 100, 100, playerData);
+        self.player = new RPG.Player(self, players[id].x, players[id].y, playerData);
 
         //add player to the world
         self.add.existing(self.player);
@@ -257,8 +264,58 @@ RPG.GameState = {
         //follow player with the camera
         self.game.camera.follow(self.player);
         
-      } else {
-        //addOtherPlayers(self, players[id]);
+      } 
+      else 
+      {
+        var playerData = {
+          //list of items
+          items: [],
+
+          //player stats
+          health: 25,
+          attack: 12,
+          defense: 8,
+          gold: 100,
+
+          //quest
+          quests: []
+        };
+
+        var otherPlayer = new RPG.Player(self, players[id].x, players[id].y, playerData);
+          
+        otherPlayer.playerId = players[id].playerId;
+
+        self.otherPlayers.add(otherPlayer);
+
+      }
+    });
+  },
+  addOtherPlayer:function(player)
+  {
+    var playerData = {
+      //list of items
+      items: [],
+
+      //player stats
+      health: 25,
+      attack: 12,
+      defense: 8,
+      gold: 100,
+
+      //quest
+      quests: []
+    };
+
+    var otherPlayer = new RPG.Player(this, player.x, player.y, playerData);
+      
+    otherPlayer.playerId = player.playerId;
+
+    this.otherPlayers.add(otherPlayer);
+  },
+  disconnect:function(playerId){
+    this.otherPlayers.forEach(function (otherPlayer) {
+      if (playerId === otherPlayer.playerId) {
+        otherPlayer.kill();
       }
     });
   }
