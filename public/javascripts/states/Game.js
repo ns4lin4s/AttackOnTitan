@@ -23,6 +23,9 @@ RPG.GameState = {
   },   
   update: function() {    
 
+    if(this.player == null)
+      return
+
     //player can't walk through walls
     this.game.physics.arcade.collide(this.player, this.collisionLayer);
 
@@ -67,6 +70,9 @@ RPG.GameState = {
   },     
   loadLevel: function(){
     
+    //init socketio
+    this.socket = new RPG.SocketClient();
+
     //create a tilemap object
     this.map = this.add.tilemap('map_3200x3200')//(this.currentLevel);
     
@@ -86,29 +92,12 @@ RPG.GameState = {
     //resize the world to fit the layer
     this.collisionLayer.resizeWorld();
 
-    //create player
-    var playerData = {
-      //list of items
-      items: [],
-
-      //player stats
-      health: 25,
-      attack: 12,
-      defense: 8,
-      gold: 100,
-
-      //quest
-      quests: []
-    };
-
-    this.player = new RPG.Player(this, 100, 100, playerData);
-
-    //add player to the world
-    this.add.existing(this.player);
-
     //group of items
     this.items = this.add.group();
     this.loadItems();
+
+    //load current players
+    this.socket.currentPlayer()
 
     //enemies
     this.enemies = this.add.group();
@@ -121,9 +110,6 @@ RPG.GameState = {
     this.enemies = this.add.group();
     this.loadEnemies();
 
-    //follow player with the camera
-    this.game.camera.follow(this.player);
-    
     // var potion = new RPG.Item(this, 100, 150, 'potion', {health: 10});
     // this.items.add(potion);
 
@@ -136,7 +122,7 @@ RPG.GameState = {
     // var chest = new RPG.Item(this, 100, 240, 'chest', {gold: 100});
     // this.items.add(chest);
 
-    this.initGUI();
+    
   },
   gameOver: function() {
     this.game.state.start('Game', true, false, this.currentLevel);
@@ -240,5 +226,40 @@ RPG.GameState = {
       elementObj = new RPG.Enemy(this, element.x, element.y, element.properties.asset, element.properties);
       this.enemies.add(elementObj);
     }, this);
+  },
+  currentPlayer: function(players){
+    var self = this;
+
+    Object.keys(players).forEach(function (id) {
+      if (players[id].playerId === self.socket.getId()) {
+        //create player
+        var playerData = {
+          //list of items
+          items: [],
+
+          //player stats
+          health: 25,
+          attack: 12,
+          defense: 8,
+          gold: 100,
+
+          //quest
+          quests: []
+        };
+
+        self.player = new RPG.Player(self, 100, 100, playerData);
+
+        //add player to the world
+        self.add.existing(self.player);
+
+        self.initGUI();
+
+        //follow player with the camera
+        self.game.camera.follow(self.player);
+        
+      } else {
+        //addOtherPlayers(self, players[id]);
+      }
+    });
   }
 };
