@@ -24,6 +24,18 @@ RPG.SocketClient.prototype.newPlayer = function()
     });
 }
 
+RPG.SocketClient.prototype.playerMoved = function()
+{
+    this.socket.on('playerMoved', function (playerInfo) {
+        RPG.GameState.playerMoved(playerInfo)
+    });
+}
+
+RPG.SocketClient.prototype.PlayerMovement = function(x,y)
+{
+    this.socket.emit('playerMovement',{ x: x, y: y });
+}
+
 RPG.SocketClient.prototype.disconnect = function()
 {
     this.socket.on('disconnect', function (output) {

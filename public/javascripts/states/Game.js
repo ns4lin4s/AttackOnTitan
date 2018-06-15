@@ -62,11 +62,26 @@ RPG.GameState = {
     //play walking animation'
     if(this.player.body.velocity.x != 0 || this.player.body.velocity.y != 0) {
       this.player.play('walk');
+
+      // emit player movement
+      var x = this.player.x;
+      var y = this.player.y;
+      if (this.player.oldPosition && (x !== this.player.oldPosition.x || y !== this.player.oldPosition.y)) {
+        this.socket.PlayerMovement(this.player.x, this.player.y)
+      }
     }
     else {
       this.player.animations.stop();
       this.player.frame = 0;
     }
+
+     
+     // save old position data
+     this.player.oldPosition = {
+       x: this.player.x,
+       y: this.player.y,
+     };
+
   },     
   loadLevel: function(){
     
@@ -105,6 +120,8 @@ RPG.GameState = {
     this.socket.disconnect()
 
     this.socket.newPlayer()
+
+    this.socket.playerMoved()
 
     //enemies
     this.enemies = this.add.group();
@@ -316,6 +333,14 @@ RPG.GameState = {
     this.otherPlayers.forEach(function (otherPlayer) {
       if (playerId === otherPlayer.playerId) {
         otherPlayer.kill();
+      }
+    });
+  },
+  playerMoved: function(playerInfo){
+    this.otherPlayers.forEach(function (otherPlayer) {
+      if (playerInfo.playerId === otherPlayer.playerId) {
+          otherPlayer.position.x = playerInfo.x
+          otherPlayer.position.y = playerInfo.y
       }
     });
   }

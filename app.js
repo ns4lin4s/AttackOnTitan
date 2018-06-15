@@ -114,14 +114,15 @@ io.on('connection', function (socket) {
       io.emit('disconnect', socket.id);
   });
 
-  // // when a player moves, update the player data
-  // socket.on('playerMovement', function (movementData) {
-  //     players[socket.id].x = movementData.x;
-  //     players[socket.id].y = movementData.y;
-  //     players[socket.id].rotation = movementData.rotation;
-  //     // emit a message to all players about the player that moved
-  //     socket.broadcast.emit('playerMoved', players[socket.id]);
-  // });
+  // when a player moves, update the player data
+  socket.on('playerMovement', function (movementData) {
+      console.log(movementData)
+      players[socket.id].x = movementData.x;
+      players[socket.id].y = movementData.y;
+
+      // emit a message to all players about the player that moved
+      socket.broadcast.emit('playerMoved', players[socket.id]);
+  });
 
   // socket.on('starCollected', function () {
   //     if (players[socket.id].team === 'red') {
