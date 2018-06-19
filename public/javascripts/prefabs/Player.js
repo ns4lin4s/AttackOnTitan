@@ -7,7 +7,7 @@ RPG.Player = function(state, x, y, data) {
   this.game = state.game;
   this.data = data;
   this.anchor.setTo(0.5);
-
+  
   //walking animation
   this.animations.add('walk', [0,1,0], 6, false);
   
@@ -19,6 +19,8 @@ RPG.Player = function(state, x, y, data) {
 
   //enable physics
   this.game.physics.arcade.enable(this);
+  //this.body.immovable = true;
+  //this.body.moves = false;
   this.game.physics.arcade.enable(this.healthBar);
 };
 

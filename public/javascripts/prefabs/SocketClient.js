@@ -31,9 +31,9 @@ RPG.SocketClient.prototype.playerMoved = function()
     });
 }
 
-RPG.SocketClient.prototype.PlayerMovement = function(x,y)
+RPG.SocketClient.prototype.PlayerMovement = function(x,y,rotation,frame)
 {
-    this.socket.emit('playerMovement',{ x: x, y: y });
+    this.socket.emit('playerMovement',{ x: x, y: y, rotation: rotation, frame: frame });
 }
 
 RPG.SocketClient.prototype.disconnect = function()
