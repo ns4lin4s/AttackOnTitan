@@ -31,9 +31,21 @@ RPG.SocketClient.prototype.playerMoved = function()
     });
 }
 
+RPG.SocketClient.prototype.enemyMoved = function()
+{
+    this.socket.on('enemyMoved', function (playerInfo) {
+        RPG.GameState.enemyMoved(playerInfo)
+    });
+}
+
 RPG.SocketClient.prototype.PlayerMovement = function(x,y,rotation,frame)
 {
     this.socket.emit('playerMovement',{ x: x, y: y, rotation: rotation, frame: frame });
+}
+
+RPG.SocketClient.prototype.EnemyMovement = function(x,y,id)
+{
+    this.socket.emit('enemyMovement',{ x: x, y: y, id: id });
 }
 
 RPG.SocketClient.prototype.disconnect = function()

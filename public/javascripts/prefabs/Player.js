@@ -19,8 +19,6 @@ RPG.Player = function(state, x, y, data) {
 
   //enable physics
   this.game.physics.arcade.enable(this);
-  //this.body.immovable = true;
-  //this.body.moves = false;
   this.game.physics.arcade.enable(this.healthBar);
 };
 
@@ -57,6 +55,13 @@ RPG.Player.prototype.update = function() {
 
   this.healthBar.body.velocity = this.body.velocity;
 };
+
+RPG.Player.prototype.addPlayer = function(player){
+
+  //this.healthBar = new Phaser.Sprite(state.game, this.x, this.y, 'bar');
+  //this.game.add.existing(player);
+
+}
 
 RPG.Player.prototype.kill = function() {
   Phaser.Sprite.prototype.kill.call(this);

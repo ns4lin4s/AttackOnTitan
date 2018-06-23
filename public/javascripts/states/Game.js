@@ -26,13 +26,20 @@ RPG.GameState = {
     if(this.player == null)
       return
 
-    // var self = this
-    // this.otherPlayers.forEach(function (otherPlayer) {
-    //   self.game.physics.arcade.collide(self.player, otherPlayer, self.attack, null, self);
-    // })
-
     //player can't walk through walls
     this.game.physics.arcade.collide(this.player, this.collisionLayer);
+
+    this.otherPlayers.forEach(function (otherPlayer) {
+      
+      this.game.physics.arcade.collide(this.player, otherPlayer, this.overlapPlayers, null, this);
+
+      this.game.physics.arcade.collide(otherPlayer, this.collisionLayer);
+
+      this.game.physics.arcade.collide(otherPlayer, this.enemies, this.attack, null, this);
+
+      this.game.physics.arcade.overlap(otherPlayer, this.items, this.collect, null, this);  
+      
+    },this)
 
     //attacking enemies
     this.game.physics.arcade.collide(this.player, this.enemies, this.attack, null, this);
@@ -45,21 +52,28 @@ RPG.GameState = {
     this.player.body.velocity.y = 0;
     var rotateLeft = false
 
+    
     if(this.cursors.left.isDown || this.player.btnsPressed.left || this.player.btnsPressed.upleft  || this.player.btnsPressed.downleft) {
       this.player.body.velocity.x = -this.PLAYER_SPEED;
       this.player.scale.setTo(1,1);
       rotateLeft = true;
+      
     }
     if(this.cursors.right.isDown || this.player.btnsPressed.right || this.player.btnsPressed.upright  || this.player.btnsPressed.downright) {
       this.player.body.velocity.x = this.PLAYER_SPEED;
       this.player.scale.setTo(-1,1);
       rotateLeft = false
+      
     }
     if(this.cursors.up.isDown || this.player.btnsPressed.up || this.player.btnsPressed.upright  || this.player.btnsPressed.upleft) {
       this.player.body.velocity.y = -this.PLAYER_SPEED;
+      rotateLeft = this.player.oldPosition.rotateLeft
+      
     }
     if(this.cursors.down.isDown || this.player.btnsPressed.down || this.player.btnsPressed.downright  || this.player.btnsPressed.downleft) {
       this.player.body.velocity.y = this.PLAYER_SPEED;
+      rotateLeft = this.player.oldPosition.rotateLeft
+      
     }
 
     //stop all movement if nothing is being pressed
@@ -68,30 +82,37 @@ RPG.GameState = {
     }
 
     //play walking animation'
-    if(this.player.body.velocity.x != 0 || this.player.body.velocity.y != 0) {
-      this.player.play('walk');
+    if((this.player.body.velocity.x != 0 || this.player.body.velocity.y != 0)) {
+      
+      // if(!validCollisionPlayer)
+      // {
+        this.player.play('walk');
 
-      // emit player movement
-      var x = this.player.x;
-      var y = this.player.y;
-      var f = this.player.frame;
-      if (this.player.oldPosition && (x !== this.player.oldPosition.x || y !== this.player.oldPosition.y || f !== this.player.oldPosition.frame)) {
-        this.socket.PlayerMovement(this.player.x, this.player.y, rotateLeft,this.player.frame)
-      }
+        // emit player movement
+        var x = this.player.x;
+        var y = this.player.y;
+        var f = this.player.frame;
+        if (this.player.oldPosition && (x !== this.player.oldPosition.x || y !== this.player.oldPosition.y || f !== this.player.oldPosition.frame)) {
+          this.socket.PlayerMovement(this.player.x, this.player.y, rotateLeft,this.player.frame)
+        }
+      //}
     }
     else {
       this.player.animations.stop();
       this.player.frame = 0;
     }
+    
 
-     
-     // save old position data
-     this.player.oldPosition = {
-       x: this.player.x,
-       y: this.player.y,
-       rotateLeft: rotateLeft,
-       frame : this.player.frame 
-     };
+    
+
+    // save old position data
+    this.player.oldPosition = {
+      x: this.player.x,
+      y: this.player.y,
+      rotateLeft: rotateLeft,
+      frame : this.player.frame 
+    };
+    
 
   },     
   loadLevel: function(){
@@ -133,6 +154,8 @@ RPG.GameState = {
     this.socket.newPlayer()
 
     this.socket.playerMoved()
+
+    //this.socket.enemyMoved()
 
     //enemies
     this.enemies = this.add.group();
@@ -180,6 +203,19 @@ RPG.GameState = {
   },
   collect: function(player, item) {
     this.player.collectItem(item);
+  },
+  overlapPlayers: function(player,other){
+    
+    this.game.stage.backgroundColor = '#992d2d';
+    
+    other.body.velocity.x = 0
+    other.body.velocity.y = 0
+    other.body.immovable = true;
+    other.body.moves = false;
+    
+    // other.position.x = other.position.x
+    // other.position.x = other.position.y
+    return true
   },
   showPlayerIcons: function() {
     //gold icon
@@ -335,8 +371,15 @@ RPG.GameState = {
     };
 
     var otherPlayer = new RPG.Player(this, player.x, player.y, playerData);
-      
+    // otherPlayer.body.gravity.set(0, 0);
+    // otherPlayer.body.bounce.set(0, 0);
     otherPlayer.playerId = player.playerId;
+    // otherPlayer.position.x = player.x
+    // otherPlayer.position.y = player.y
+    console.log('x:' + otherPlayer.position.x)
+    console.log('y:' + otherPlayer.position.y)
+
+    //this.player.addPlayer(otherPlayer)
 
     this.otherPlayers.add(otherPlayer);
   },
@@ -383,5 +426,18 @@ RPG.GameState = {
           // }
       }
     });
+  },
+  enemyMoved: function(playerInfo){
+    
+    this.otherPlayers.forEach(function (otherPlayer) {
+      if (playerInfo.playerId === otherPlayer.playerId) {
+          otherPlayer.position.x = playerInfo.x
+          otherPlayer.position.y = playerInfo.y
+      }
+    });
+  },
+  render: function(){
+    if(this.player)
+      this.game.debug.spriteInfo(this.player, 30, 30);
   }
 };
