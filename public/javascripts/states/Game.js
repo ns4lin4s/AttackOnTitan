@@ -17,7 +17,7 @@ RPG.GameState = {
   },
   create: function() {   
 
-    this.game.OnscreenControls = this.game.plugins.add(Phaser.Plugin.OnscreenControls);
+    //this.game.OnscreenControls = this.game.plugins.add(Phaser.Plugin.OnscreenControls);
 
     this.loadLevel();
   },   
@@ -50,43 +50,51 @@ RPG.GameState = {
     //stop each time
     this.player.body.velocity.x = 0;
     this.player.body.velocity.y = 0;
+    this.player.character.body.velocity.x = 0;
+    this.player.character.body.velocity.y = 0;
     var rotateLeft = false
 
     
-    if(this.cursors.left.isDown || this.player.btnsPressed.left || this.player.btnsPressed.upleft  || this.player.btnsPressed.downleft) {
+    if(this.cursors.left.isDown) {
       this.player.body.velocity.x = -this.PLAYER_SPEED;
       this.player.scale.setTo(1,1);
+      this.player.character.body.velocity.x = -this.PLAYER_SPEED;
+      this.player.character.scale.setTo(1,1);
       rotateLeft = true;
       
     }
-    if(this.cursors.right.isDown || this.player.btnsPressed.right || this.player.btnsPressed.upright  || this.player.btnsPressed.downright) {
+    if(this.cursors.right.isDown ) {
       this.player.body.velocity.x = this.PLAYER_SPEED;
       this.player.scale.setTo(-1,1);
+      this.player.character.body.velocity.x = this.PLAYER_SPEED;
+      this.player.character.scale.setTo(-1,1);
       rotateLeft = false
       
     }
-    if(this.cursors.up.isDown || this.player.btnsPressed.up || this.player.btnsPressed.upright  || this.player.btnsPressed.upleft) {
+    if(this.cursors.up.isDown ) {
       this.player.body.velocity.y = -this.PLAYER_SPEED;
+      this.player.character.body.velocity.y = -this.PLAYER_SPEED;
       rotateLeft = this.player.oldPosition.rotateLeft
       
     }
-    if(this.cursors.down.isDown || this.player.btnsPressed.down || this.player.btnsPressed.downright  || this.player.btnsPressed.downleft) {
+    if(this.cursors.down.isDown ) {
       this.player.body.velocity.y = this.PLAYER_SPEED;
+      this.player.character.body.velocity.y = this.PLAYER_SPEED;
       rotateLeft = this.player.oldPosition.rotateLeft
       
     }
 
     //stop all movement if nothing is being pressed
-    if(this.game.input.activePointer.isUp) {
-      this.game.OnscreenControls.stopMovement();
-    }
+    // if(this.game.input.activePointer.isUp) {
+    //   this.game.OnscreenControls.stopMovement();
+    // }
 
     //play walking animation'
     if((this.player.body.velocity.x != 0 || this.player.body.velocity.y != 0)) {
       
       // if(!validCollisionPlayer)
       // {
-        this.player.play('walk');
+        this.player.character.play('walk');
 
         // emit player movement
         var x = this.player.x;
@@ -126,24 +134,33 @@ RPG.GameState = {
     this.map = this.add.tilemap('map_3200x3200')//(this.currentLevel);
     
     //join the tile images to the json data
-    this.map.addTilesetImage('tiles_attack_on_titan', 'tilesheet');
+    this.map.addTilesetImage('mapa2', 'tilesheet');
     
     //create tile layers
     this.backgroundLayer = this.map.createLayer('backgroundLayer');
     this.collisionLayer = this.map.createLayer('collisionLayer');
+    this.woodLayer = this.map.createLayer('abovePlayer');
     
     //send background to the back
+    this.game.world.bringToTop(this.woodLayer);
     this.game.world.sendToBack(this.backgroundLayer);
     
+    
     //collision layer should be collisionLayer
-    this.map.setCollisionBetween(1,291, true, 'collisionLayer');
+    this.map.setCollisionBetween(0,442, true, 'collisionLayer');
     
     //resize the world to fit the layer
     this.collisionLayer.resizeWorld();
 
+    //collision layer should be collisionLayer
+    //this.map.setCollisionBetween(411,416, true, 'woodLayer');
+
+    //resize the world to fit the layer
+    //this.woodLayer.resizeWorld();
+
     //group of items
-    this.items = this.add.group();
-    this.loadItems();
+    //this.items = this.add.group();
+    //this.loadItems();
 
     //load current players
     this.socket.currentPlayer()
@@ -165,8 +182,8 @@ RPG.GameState = {
     this.battle = new RPG.Battle(this.game);
 
     //enemies
-    this.enemies = this.add.group();
-    this.loadEnemies();
+    //this.enemies = this.add.group();
+    //this.loadEnemies();
 
     // var potion = new RPG.Item(this, 100, 150, 'potion', {health: 10});
     // this.items.add(potion);
@@ -187,19 +204,19 @@ RPG.GameState = {
   },
   initGUI: function() {
     //onscreen controls setup
-    this.game.OnscreenControls.setup(this.player, {
-      left: true,
-      right: true,
-      up: true,
-      down: true,
-      upleft: true,
-      downleft: true,
-      upright: true,
-      downright: true,
-      action: false
-    })
+    // this.game.OnscreenControls.setup(this.player, {
+    //   left: true,
+    //   right: true,
+    //   up: true,
+    //   down: true,
+    //   upleft: true,
+    //   downleft: true,
+    //   upright: true,
+    //   downright: true,
+    //   action: false
+    // })
 
-    this.showPlayerIcons();
+    // this.showPlayerIcons();
   },
   collect: function(player, item) {
     this.player.collectItem(item);
@@ -252,6 +269,9 @@ RPG.GameState = {
   findObjectsByType: function(targetType, tilemap, layer){
     var result = [];
     
+    if(tilemap.hasOwnProperty(tilemap.objects)==false)
+      return result
+
     tilemap.objects[layer].forEach(function(element){
       if(element.properties.type == targetType) {
         element.y -= tilemap.tileHeight/2;        
@@ -265,11 +285,12 @@ RPG.GameState = {
   loadItems: function(){
     var elementsArr = this.findObjectsByType('item', this.map, 'objectsLayer');
     var elementObj;
-
-    elementsArr.forEach(function(element){
-      elementObj = new RPG.Item(this, element.x, element.y, element.properties.asset, element.properties);
-      this.items.add(elementObj);
-    }, this);
+    if(elementsArr != null && elementsArr.length > 0){
+      elementsArr.forEach(function(element){
+        elementObj = new RPG.Item(this, element.x, element.y, element.properties.asset, element.properties);
+        this.items.add(elementObj);
+      }, this);
+    }
   },
   attack: function(player, enemy) {
     this.battle.attack(player, enemy);
@@ -321,7 +342,8 @@ RPG.GameState = {
         self.player = new RPG.Player(self, players[id].x, players[id].y, playerData);
 
         //add player to the world
-        self.add.existing(self.player);
+        //self.add.existing(self.player);
+        self.otherPlayers.add(self.player);
 
         self.initGUI();
 

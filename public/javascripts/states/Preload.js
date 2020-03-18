@@ -30,9 +30,9 @@ RPG.PreloadState = {
     
     //load game data
     debugger
-    this.load.tilemap('map_3200x3200', '../assets/design/map.json', null, Phaser.Tilemap.TILED_JSON);
+    this.load.tilemap('map_3200x3200', '../assets/design/map2.json', null, Phaser.Tilemap.TILED_JSON);
 
-    this.load.image('tilesheet','../assets/design/GrasslandTileset/Tilemaps/Grassland@64x64.png');  
+    this.load.image('tilesheet','../assets/design/GrasslandTileset/Tilemaps/GrasslandColor2@64x64.png');  
 
     
   },
